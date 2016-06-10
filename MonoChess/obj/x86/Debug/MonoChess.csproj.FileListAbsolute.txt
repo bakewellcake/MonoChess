@@ -103,3 +103,5 @@ C:\Users\hayden.perry\Dropbox\code\cs\projects\MonoChess\MonoChess\bin\Windows\D
 C:\Users\hayden.perry\Dropbox\code\cs\projects\MonoChess\MonoChess\bin\Windows\Debug\SharpDX.RawInput.xml
 C:\Users\hayden.perry\Dropbox\code\cs\projects\MonoChess\MonoChess\bin\Windows\Debug\SharpDX.Direct3D9.xml
 C:\Users\hayden.perry\Dropbox\code\cs\projects\MonoChess\MonoChess\obj\x86\Debug\MonoChess.csprojResolveAssemblyReference.cache
+C:\dev\Projects\MonoChess\MonoChess\obj\x86\Debug\MonoChess.exe
+C:\dev\Projects\MonoChess\MonoChess\obj\x86\Debug\MonoChess.pdb
