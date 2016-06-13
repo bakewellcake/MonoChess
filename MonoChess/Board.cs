@@ -126,8 +126,37 @@ namespace MonoChess
             MovePiece(new int[] { move[0, 1], move[0, 0] }, new int[] { move[1, 1], move[1, 0] });
         }
 
+        public void GeneratePieceInfo()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    switch (boardLayout[i][j])
+                    {
+                        case 0: piecesList[i, j] = new Pieces { piece = "", pieceColor = "none", pieceCoord = new int[] { j, i } }; break; // piece = "" because I print color then piece so this is to avoid "none none"
+                        case 1: piecesList[i, j] = new Pieces { piece = "rook", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 2: piecesList[i, j] = new Pieces { piece = "knight", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 3: piecesList[i, j] = new Pieces { piece = "bishop", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 4: piecesList[i, j] = new Pieces { piece = "queen", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 5: piecesList[i, j] = new Pieces { piece = "king", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 6: piecesList[i, j] = new Pieces { piece = "pawn", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
+                        case 7: piecesList[i, j] = new Pieces { piece = "pawn", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        case 8: piecesList[i, j] = new Pieces { piece = "rook", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        case 9: piecesList[i, j] = new Pieces { piece = "knight", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        case 10: piecesList[i, j] = new Pieces { piece = "bishop", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        case 11: piecesList[i, j] = new Pieces { piece = "queen", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        case 12: piecesList[i, j] = new Pieces { piece = "king", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
+                        default: break;
+                    }
+                }
+            }
+        }
+
         public bool IsLegal(int[] moveFrom, int[] moveTo) // moveFrom[y, x], moveTo[y, x] because I suck at coding
         {
+            GeneratePieceInfo();
+
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 1 || boardLayout[moveFrom[0]][moveFrom[1]] == 8) // rook
             {
                 if ((moveTo[1] < moveFrom[1] && moveTo[0] == moveFrom[0]) ||
@@ -325,9 +354,7 @@ namespace MonoChess
                     if (boardRect[i, j].Contains(new Rectangle(mouseState.X, mouseState.Y, 1, 1)) && loaded)
                     {
                         spriteBatch.Draw(squareSelected, new Vector2(i * 100, j * 100), new Rectangle(0, 0, 100, 100), Color.White);
-                        pieceString =
-                                    "(" + piecesList[j, i].pieceCoord[0].ToString() + ", " + piecesList[j, i].pieceCoord[1].ToString() + ") " +
-                                    boardLayout[j][i].ToString() + "\n" + piecesList[j, i].pieceColor + " " + piecesList[j, i].piece;
+                        pieceString = "(" + piecesList[j, i].pieceCoord[0].ToString() + ", " + piecesList[j, i].pieceCoord[1].ToString() + ") " + boardLayout[j][i].ToString() + "\n" + piecesList[j, i].pieceColor + " " + piecesList[j, i].piece;
 
                         if (mouseState.LeftButton == ButtonState.Pressed)
                         {
@@ -386,31 +413,21 @@ namespace MonoChess
             {
                 selected = false;
             }
+            if (singlePlayer && turn == false)
+            {
+                MovePiece(new Computer(this).CalculateMove());
+                turn = true;
+            }
         }
 
         public void DrawPieces(SpriteBatch spriteBatch, Texture2D chessPieces)
         {
+            GeneratePieceInfo();
+
             for (int i = 0; i < 8; i++)
             {
                 for (int j = 0; j < 8; j++)
                 {
-                    switch (boardLayout[i][j])
-                    {
-                        case 0: piecesList[i, j] = new Pieces { piece = "", pieceColor = "none", pieceCoord = new int[] { j, i } }; break; // piece = "" because I print color then piece so this is to avoid "none none"
-                        case 1: piecesList[i, j] = new Pieces { piece = "rook", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 2: piecesList[i, j] = new Pieces { piece = "knight", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 3: piecesList[i, j] = new Pieces { piece = "bishop", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 4: piecesList[i, j] = new Pieces { piece = "queen", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 5: piecesList[i, j] = new Pieces { piece = "king", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 6: piecesList[i, j] = new Pieces { piece = "pawn", pieceColor = "black", pieceCoord = new int[] { j, i } }; break;
-                        case 7: piecesList[i, j] = new Pieces { piece = "pawn", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        case 8: piecesList[i, j] = new Pieces { piece = "rook", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        case 9: piecesList[i, j] = new Pieces { piece = "knight", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        case 10: piecesList[i, j] = new Pieces { piece = "bishop", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        case 11: piecesList[i, j] = new Pieces { piece = "queen", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        case 12: piecesList[i, j] = new Pieces { piece = "king", pieceColor = "white", pieceCoord = new int[] { j, i } }; break;
-                        default: break;
-                    }
                     if (boardLayout[i][j] != 0)
                     {
                         spriteBatch.Draw(chessPieces, piecesList[i, j].PiecePos(), piecesList[i, j].PieceRect(), Color.White);

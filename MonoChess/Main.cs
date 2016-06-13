@@ -198,8 +198,8 @@ namespace MonoChess
 
             if (board.turn == false && board.singlePlayer)
             {
-                board.MovePiece(new Computer(new Board()).CalculateMove());
-                board.turn = !board.turn;
+                //board.MovePiece(new Computer(new Board()).CalculateMove());
+                //board.turn = !board.turn;
             }
 
             base.Update(gameTime);
