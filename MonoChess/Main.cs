@@ -28,15 +28,23 @@ namespace MonoChess
 
         int totalFrames = 0;
         int fps = 0;
+
         float timeElapsed = 0.0f;
         float keyTimeElapsed = 0.0f;
         float keyTimeMax = 150.0f;
+        float menuTimeElapsed = 0.0f;
+        float menuTimeMax = 100.0f;
+
+        bool menuClicked = false;
+
+        string title = "MonoChess";
 
         String selected = null;
         String[] menuText;
         Rectangle[] menuRect;
 
-        public enum Allignment { left, center, right };
+        public enum GameState { mainMenu, gameOver, options, play };
+        public GameState gameState = GameState.mainMenu;
 
         public Main()
         {
@@ -46,10 +54,10 @@ namespace MonoChess
             Content.RootDirectory = "Content";
 
             board = new Board();
-            this.Window.Title = "MonoChess";
+            this.Window.Title = title;
         }
 
-        public void DrawMenu(String[] list, int x, int y, Allignment allignment)
+        public void DrawMenu(String[] list, int x, int y)
         {
             GraphicsDevice.Clear(Color.Gray);
             menuRect = new Rectangle[list.Length];
@@ -57,49 +65,21 @@ namespace MonoChess
             for (int i = 0; i < list.Length; i++)
             {
                 spriteBatch.Begin();
-                switch (allignment)
+                menuRect[i] = new Rectangle(x - (int)(menuFont.MeasureString(list[i]).X / 2), y + (i * 50), (int)menuFont.MeasureString(list[i]).X, (int)menuFont.MeasureString(list[i]).Y);
+                if (menuRect[i].Contains(mouseState.X, mouseState.Y))
                 {
-                    case Allignment.center:
-                        menuRect[i] = new Rectangle(x - (int)(menuFont.MeasureString(list[i]).X / 2), y + (i * 50), (int)menuFont.MeasureString(list[i]).X, (int)menuFont.MeasureString(list[i]).Y);
-                        if (menuRect[i].Contains(mouseState.X, mouseState.Y))
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x - (menuFont.MeasureString(list[i]).X / 2), y + (i * 50)), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x - (menuFont.MeasureString(list[i]).X / 2), y + (i * 50)), Color.Black);
-                        }
-                        break;
-                    case Allignment.right:
-                        menuRect[i] = new Rectangle(x - (int)(menuFont.MeasureString(list[i]).X), y + (i * 50), (int)menuFont.MeasureString(list[i]).X, (int)menuFont.MeasureString(list[i]).Y);
-                        if (menuRect[i].Contains(mouseState.X, mouseState.Y))
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x - menuFont.MeasureString(list[i]).X, y + (i * 50)), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x - menuFont.MeasureString(list[i]).X, y + (i * 50)), Color.Black);
-                        }
-                        break;
-                    case Allignment.left:
-                        menuRect[i] = new Rectangle(x, y + (i * 50), (int)menuFont.MeasureString(list[i]).X, (int)menuFont.MeasureString(list[i]).Y);
-                        if (menuRect[i].Contains(mouseState.X, mouseState.Y))
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x, y + (i * 50)), Color.Red);
-                        }
-                        else
-                        {
-                            spriteBatch.DrawString(menuFont, list[i], new Vector2(x, y + (i * 50)), Color.Black);
-                        }
-                        break;
-                    default:
-                        break;
+                    spriteBatch.DrawString(menuFont, list[i], new Vector2(x - (menuFont.MeasureString(list[i]).X / 2), y + (i * 50)), Color.Red);
+                }
+                else
+                {
+                    spriteBatch.DrawString(menuFont, list[i], new Vector2(x - (menuFont.MeasureString(list[i]).X / 2), y + (i * 50)), Color.Black);
                 }
                 spriteBatch.End();
 
-                if (menuRect[i].Contains(mouseState.X, mouseState.Y) && mouseState.LeftButton == ButtonState.Pressed)
+                if (menuRect[i].Contains(mouseState.X, mouseState.Y) && mouseState.LeftButton == ButtonState.Pressed && menuClicked == false)
                 {
                     selected = list[i];
+                    menuClicked = true;
                 }
             }
         }
@@ -120,8 +100,6 @@ namespace MonoChess
             cursor = Content.Load<Texture2D>("cursor");
             squareSelected = Content.Load<Texture2D>("squareSelected");
             turn = Content.Load<Texture2D>("turn");
-
-            //blurEffect = Content.Load<Effect>("blurEffect");
         }
 
         protected override void UnloadContent()
@@ -135,6 +113,17 @@ namespace MonoChess
 
             timeElapsed += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
             keyTimeElapsed += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if (menuClicked)
+            {
+                menuTimeElapsed += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+
+                if (menuTimeElapsed >= menuTimeMax)
+                {
+                    menuClicked = false;
+                    menuTimeElapsed = 0.0f;
+                }
+            }
 
             if (timeElapsed >= 1000.0f)
             {
@@ -160,6 +149,7 @@ namespace MonoChess
                 board.singlePlayer = !board.singlePlayer;
                 board.testString = board.singlePlayer.ToString();
             }
+            #region move history
             if (board.maxMoveDisplay == 10)
             {
                 //Moving a piece after pressing up breaks the game for some reason
@@ -194,13 +184,13 @@ namespace MonoChess
                 //    board.moveOffset = 0;
                 //}
             }
-            oldKeyState = Keyboard.GetState();
-
-            if (board.turn == false && board.singlePlayer)
+            #endregion
+            if (board.gameOver)
             {
-                //board.MovePiece(new Computer(new Board()).CalculateMove());
-                //board.turn = !board.turn;
+                gameState = GameState.gameOver;
+                board.gameOver = false;
             }
+            oldKeyState = Keyboard.GetState();
 
             base.Update(gameTime);
         }
@@ -211,66 +201,67 @@ namespace MonoChess
 
             totalFrames++;
 
-            // Game over screen thing, effects not working with Monogame...
-            //if (board.gameOver) // if the game has ended, blur
-            //{
-            //    spriteBatch.Begin();
-            //    {
-            //        //blurEffect.CurrentTechnique.Passes[0].Apply();
-            //        board.DrawBoard(spriteBatch, boardTile, squareSelected);
-            //        board.DrawPieces(spriteBatch, chessPieces);
-            //    }
-            //    spriteBatch.End();
-            //}
-            //else // if the game is still in progress, no blur
-            //{
-            //    spriteBatch.Begin();
-            //    {
-            //        board.DrawBoard(spriteBatch, boardTile, squareSelected);
-            //        board.DrawPieces(spriteBatch, chessPieces);
-            //    }
-            //    spriteBatch.End();
-            //}
-
-            if (board.displayMenu)
+            switch (gameState)
             {
-                menuText = new String[] { "HUMAN VS COMPUTER", "HUMAN VS HUMAN", "EXIT" };
-                DrawMenu(menuText, graphics.PreferredBackBufferWidth / 2, (graphics.PreferredBackBufferHeight / 2) - 100, Allignment.center);
+                case GameState.mainMenu:
+                    menuText = new String[] { "HUMAN VS COMPUTER", "HUMAN VS HUMAN", "EXIT" };
+                    DrawMenu(menuText, graphics.PreferredBackBufferWidth / 2, (graphics.PreferredBackBufferHeight / 2) - 100);
 
-                switch (selected)
-                {
-                    case "HUMAN VS COMPUTER":
-                        board.singlePlayer = true;
-                        board.displayMenu = false;
+                    switch (selected)
+                    {
+                        case "HUMAN VS COMPUTER":
+                            board.singlePlayer = true;
+                            gameState = GameState.play;
 
-                        this.Window.Title = "MonoChess - Human VS Computer";
-                        break;
-                    case "HUMAN VS HUMAN":
-                        board.singlePlayer = false;
-                        board.displayMenu = false;
+                            this.Window.Title = title + " - Human VS Computer";
+                            break;
+                        case "HUMAN VS HUMAN":
+                            board.singlePlayer = false;
+                            gameState = GameState.play;
 
-                        this.Window.Title = "MonoChess - Human VS Human";
-                        break;
-                    case "EXIT":
-                        this.Exit();
-                        break;
-                    default:
-                        break;
-                }
-                selected = null;
-            }
-            else
-            {
-                if (!board.gameOver)
-                {
+                            this.Window.Title = title + " - Human VS Human";
+                            break;
+                        case "EXIT":
+                            this.Exit();
+                            break;
+                        default:
+                            break;
+                    }
+                    selected = null;
+                    break;
+                case GameState.gameOver:
+                    this.Window.Title = title;
+                    menuText = new String[] { "PLAY AGAIN", "MAIN MENU", "EXIT" };
+                    DrawMenu(menuText, graphics.PreferredBackBufferWidth / 2, (graphics.PreferredBackBufferHeight / 2) - 100);
+
+                    switch (selected)
+                    {
+                        case "PLAY AGAIN":
+                            gameState = GameState.play;
+                            break;
+                        case "MAIN MENU":
+                            gameState = GameState.mainMenu;
+                            break;
+                        case "EXIT":
+                            this.Exit();
+                            break;
+                        default:
+                            break;
+                    }
+                    selected = null;
+                    break;
+                case GameState.options:
+
+                    break;
+                case GameState.play:
                     menuText = new String[] { "MAIN MENU" };
-                    DrawMenu(menuText, 900, 7, Allignment.center);
+                    DrawMenu(menuText, 900, 7);
 
                     if (selected == "MAIN MENU")
                     {
-                        board.displayMenu = true;
-                        this.Window.Title = "MonoChess";
+                        this.Window.Title = title;
                         board.ResetBoard();
+                        gameState = GameState.mainMenu;
                     }
 
                     spriteBatch.Begin();
@@ -314,7 +305,9 @@ namespace MonoChess
                         }
                     }
                     spriteBatch.End();
-                }
+                    break;
+                default:
+                    break;
             }
 
             spriteBatch.Begin();
