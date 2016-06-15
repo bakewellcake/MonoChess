@@ -30,6 +30,8 @@ namespace MonoChess
         public string pieceString = "";
         public string error = "NULL";
         public string testString;
+        public string winner = "NULL";
+
         public List<string> moves = new List<string>();
         public string[] displayMoves = new string[10];
 
@@ -46,7 +48,6 @@ namespace MonoChess
             new int [] { 7,  7,  7,  7,  7,  7,  7,  7 }, // 7 = wPawn, 8 = wRook, 9 = wKnight
             new int [] { 8,  9,  10, 11, 12, 10, 9,  8 }  // 10 = wBishop, 11 = wQueen, 12 = wKing
         };
-
         public Board()
         {
             pieces = new Pieces();
@@ -60,7 +61,6 @@ namespace MonoChess
                 }
             }
         }
-
         public void ResetBoard()
         {
             moves.Clear();
@@ -85,7 +85,6 @@ namespace MonoChess
         {
             return boardLayout[y][x];
         }
-
         public void MovePiece(int[] moveFrom, int[] moveTo)
         {
             moves.Add(
@@ -178,7 +177,10 @@ namespace MonoChess
                             return false;
                         }
                     }
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "black" : "black"))
+                    {
+                        return true;
+                    }
                 }
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 2 || boardLayout[moveFrom[0]][moveFrom[1]] == 9) // knight
@@ -192,7 +194,10 @@ namespace MonoChess
                     (moveTo[1] == moveFrom[1] - 2 && moveTo[0] == moveFrom[0] - 1) ||
                     (moveTo[1] == moveFrom[1] - 2 && moveTo[0] == moveFrom[0] + 1))
                 {
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
+                    {
+                        return true;
+                    }
                 }
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 3 || boardLayout[moveFrom[0]][moveFrom[1]] == 10) // bishop
@@ -210,7 +215,10 @@ namespace MonoChess
                             return false;
                         }
                     }
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
+                    {
+                        return true;
+                    }
                 }
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 4 || boardLayout[moveFrom[0]][moveFrom[1]] == 11) //queen
@@ -234,7 +242,10 @@ namespace MonoChess
                             return false;
                         }
                     }
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
+                    {
+                        return true;
+                    }
                 }
                 if (((moveTo[1] < moveFrom[1] && moveTo[0] < moveFrom[0]) ||
                     (moveTo[1] > moveFrom[1] && moveTo[0] > moveFrom[0]) ||
@@ -249,7 +260,10 @@ namespace MonoChess
                             return false;
                         }
                     }
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
+                    {
+                        return true;
+                    }
                 }
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 5 || boardLayout[moveFrom[0]][moveFrom[1]] == 12) // king
@@ -263,7 +277,10 @@ namespace MonoChess
                     (moveTo[1] == moveFrom[1] - 1 && moveTo[0] == moveFrom[0] + 0) ||
                     (moveTo[1] == moveFrom[1] + 1 && moveTo[0] == moveFrom[0] + 0))
                 {
-                    return true;
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
+                    {
+                        return true;
+                    }
                 }
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 6 || boardLayout[moveFrom[0]][moveFrom[1]] == 7) // pawn
@@ -286,19 +303,19 @@ namespace MonoChess
                     }
                     if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
                         (moveTo[0] == moveFrom[0] - 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece != "")) // taking a piece diagonally
+                        (piecesList[moveTo[0], moveTo[1]].piece != "" && piecesList[moveTo[0], moveTo[1]].pieceColor != "white")) // taking a piece diagonally
                     {
                         return true;
                     }
-                    if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                        (moveTo[0] == moveFrom[0] - 1 && piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                        (piecesList[moveTo[0] + 1, moveTo[1]].pieceColor == "black") &&
-                        (piecesList[moveTo[0] + 1, moveTo[1]].piece == "pawn") &&
-                        (piecesList[moveTo[0] + 1, moveTo[1]].pieceCoord[1] == 3)) // en passant
-                    {
-                        boardLayout[moveTo[0] + 1][moveTo[1]] = 0;
-                        return true;
-                    }
+                    //if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
+                    //    (moveTo[0] == moveFrom[0] - 1 && piecesList[moveTo[0], moveTo[1]].piece == "") &&
+                    //    (piecesList[moveTo[0] + 1, moveTo[1]].pieceColor == "black") &&
+                    //    (piecesList[moveTo[0] + 1, moveTo[1]].piece == "pawn") &&
+                    //    (piecesList[moveTo[0] + 1, moveTo[1]].pieceCoord[1] == 3)) // en passant
+                    //{
+                    //    boardLayout[moveTo[0] + 1][moveTo[1]] = 0;
+                    //    return true;
+                    //}
                 }
                 if (turn == false)
                 {
@@ -318,20 +335,20 @@ namespace MonoChess
                     }
                     if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
                         (moveTo[0] == moveFrom[0] + 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece != ""))
+                        (piecesList[moveTo[0], moveTo[1]].piece != "" && piecesList[moveTo[0], moveTo[1]].pieceColor != "black"))
                     {
                         return true;
                     }
-                    if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                        (moveTo[0] == moveFrom[0] + 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                        (piecesList[moveTo[0] - 1, moveTo[1]].pieceColor == "white") &&
-                        (piecesList[moveTo[0] - 1, moveTo[1]].piece == "pawn") &&
-                       (piecesList[moveTo[0] - 1, moveTo[1]].pieceCoord[1] == 4))
-                    {
-                        boardLayout[moveTo[0] - 1][moveTo[1]] = 0;
-                        return true;
-                    }
+                    //if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
+                    //    (moveTo[0] == moveFrom[0] + 1) &&
+                    //    (piecesList[moveTo[0], moveTo[1]].piece == "") &&
+                    //    (piecesList[moveTo[0] - 1, moveTo[1]].pieceColor == "white") &&
+                    //    (piecesList[moveTo[0] - 1, moveTo[1]].piece == "pawn") &&
+                    //   (piecesList[moveTo[0] - 1, moveTo[1]].pieceCoord[1] == 4))
+                    //{
+                    //    boardLayout[moveTo[0] - 1][moveTo[1]] = 0;
+                    //    return true;
+                    //}
                 }
             }
             return false;

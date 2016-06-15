@@ -17,6 +17,8 @@ namespace MonoChess
         int checkSquareY;
         int randomIndex;
 
+        bool outOfBoard;
+
         public Computer(Board board)
         {
             this.board = board;
@@ -44,42 +46,23 @@ namespace MonoChess
                         }
                         else
                         {
-                            if (x == 0 || x == 7 || y == 0 || y == 7) //pieces on the edge
+                            for (int i = 0; i < 3; i++)
                             {
-                                if (x == 0 && y == 0) //top left
+                                for (int j = 0; j < (i < 2 ? 3 : 2); j++)
                                 {
+                                    outOfBoard = false;
 
-                                }
-                                else if (x == 7 && y == 0) //top right
-                                {
+                                    checkSquareX = x + (i < 2 ? (i == 0 ? -1 : 1) : 0);
+                                    checkSquareY = (i < 2 ? ((y - 1) + j) : (y + (j == 0 ? -1 : 1)));
 
-                                }
-                                else if (x == 0 && y == 7) //bottom left
-                                {
-
-                                }
-                                else if (x == 7 && y == 7) //bottom right
-                                {
-
-                                }
-                                else
-                                {
-                                    //
-                                }
-                            }
-                            else
-                            {
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    for (int j = 0; j < (i < 2 ? 3 : 2); j++)
+                                    if (checkSquareX < 0 || checkSquareX > 7 || checkSquareY < 0 || checkSquareY > 7)
                                     {
-                                        checkSquareX = x + (i < 2 ? (i == 0 ? -1 : 1) : 0);
-                                        checkSquareY = (i < 2 ? ((y - 1) + j) : (y + (j == 0 ? -1 : 1)));
+                                        outOfBoard = true;
+                                    }
 
-                                        if (board.IsLegal(new int[] { x, y }, new int[] { checkSquareX, checkSquareY })) //check move is legal to that space
-                                        {
-                                            legalMoves.Add(new int[] { x, y, checkSquareX, checkSquareY });
-                                        }
+                                    if (outOfBoard == false && board.IsLegal(new int[] { x, y }, new int[] { checkSquareX, checkSquareY })) //check move is legal to that space
+                                    {
+                                        legalMoves.Add(new int[] { x, y, checkSquareX, checkSquareY });
                                     }
                                 }
                             }
@@ -91,9 +74,9 @@ namespace MonoChess
             randomIndex = random.Next(0, legalMoves.Count);
             foreach (int[] value in legalMoves)
             {
-                Console.WriteLine("(" + value[0].ToString() + ", " + value[1].ToString() + ")" + " (" + value[2].ToString() + ", " + value[3].ToString() + ")");
+                Console.WriteLine("(" + value[1].ToString() + ", " + value[0].ToString() + ")" + " (" + value[3].ToString() + ", " + value[2].ToString() + ")");
             }
-            Console.WriteLine("\n(" + legalMoves[randomIndex][0].ToString() + ", " + legalMoves[randomIndex][1] + ")" + " (" + legalMoves[randomIndex][2].ToString() + ", " + legalMoves[randomIndex][3].ToString() + ")\n=============");
+            Console.WriteLine("\n(" + legalMoves[randomIndex][1].ToString() + ", " + legalMoves[randomIndex][0] + ")" + " (" + legalMoves[randomIndex][3].ToString() + ", " + legalMoves[randomIndex][2].ToString() + ")\n=============");
 
             return new int[,] { { legalMoves[randomIndex][1], legalMoves[randomIndex][0] }, { legalMoves[randomIndex][3], legalMoves[randomIndex][2] } };
         }

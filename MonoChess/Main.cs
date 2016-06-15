@@ -24,16 +24,14 @@ namespace MonoChess
         Texture2D squareSelected;
         Texture2D turn;
 
-        //Effect blurEffect;
-
         int totalFrames = 0;
         int fps = 0;
 
         float timeElapsed = 0.0f;
         float keyTimeElapsed = 0.0f;
-        float keyTimeMax = 150.0f;
+        //float keyTimeMax = 150.0f;
         float menuTimeElapsed = 0.0f;
-        float menuTimeMax = 100.0f;
+        float menuTimeMax = 150.0f;
 
         bool menuClicked = false;
 
@@ -233,6 +231,12 @@ namespace MonoChess
                     this.Window.Title = title;
                     menuText = new String[] { "PLAY AGAIN", "MAIN MENU", "EXIT" };
                     DrawMenu(menuText, graphics.PreferredBackBufferWidth / 2, (graphics.PreferredBackBufferHeight / 2) - 100);
+
+                    spriteBatch.Begin();
+                    {
+                        spriteBatch.DrawString(spriteFont, "GAME OVER!", new Vector2((graphics.PreferredBackBufferWidth / 2) - 50, (graphics.PreferredBackBufferHeight / 2) - 200), Color.White);
+                    }
+                    spriteBatch.End();
 
                     switch (selected)
                     {
