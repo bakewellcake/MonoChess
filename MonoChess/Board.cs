@@ -177,7 +177,7 @@ namespace MonoChess
                             return false;
                         }
                     }
-                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "black" : "black"))
+                    if (piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))
                     {
                         return true;
                     }
@@ -285,71 +285,36 @@ namespace MonoChess
             }
             if (boardLayout[moveFrom[0]][moveFrom[1]] == 6 || boardLayout[moveFrom[0]][moveFrom[1]] == 7) // pawn
             {
-                if (turn == true)
+                if ((moveTo[1] == moveFrom[1]) &&
+                    (moveTo[0] == moveFrom[0] + (turn ? -1 : 1)) &&
+                    (piecesList[moveTo[0], moveTo[1]].piece == "")) // moving forwards
                 {
-                    if ((moveTo[1] == moveFrom[1]) &&
-                        (moveTo[0] == moveFrom[0] - 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece == "")) // moving forwards
-                    {
-                        return true;
-                    }
-                    if ((moveTo[1] == moveFrom[1]) &&
-                        (moveTo[0] == moveFrom[0] - 2) &&
-                        (moveFrom[0] == 6) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                        (piecesList[moveTo[0] + 1, moveTo[1]].piece == "")) // moving forwards 2 places on first move
-                    {
-                        return true;
-                    }
-                    if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                        (moveTo[0] == moveFrom[0] - 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece != "" && piecesList[moveTo[0], moveTo[1]].pieceColor != "white")) // taking a piece diagonally
-                    {
-                        return true;
-                    }
-                    //if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                    //    (moveTo[0] == moveFrom[0] - 1 && piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                    //    (piecesList[moveTo[0] + 1, moveTo[1]].pieceColor == "black") &&
-                    //    (piecesList[moveTo[0] + 1, moveTo[1]].piece == "pawn") &&
-                    //    (piecesList[moveTo[0] + 1, moveTo[1]].pieceCoord[1] == 3)) // en passant
-                    //{
-                    //    boardLayout[moveTo[0] + 1][moveTo[1]] = 0;
-                    //    return true;
-                    //}
+                    return true;
                 }
-                if (turn == false)
+                if ((moveTo[1] == moveFrom[1]) &&
+                    (moveTo[0] == moveFrom[0] + (turn ? -2 : 2)) &&
+                    (moveFrom[0] == (turn ? 6 : 1)) &&
+                    (piecesList[moveTo[0], moveTo[1]].piece == "") &&
+                    (piecesList[moveTo[0] + (turn ? 1 : -1), moveTo[1]].piece == "")) // moving forwards 2 places on first move
                 {
-                    if ((moveTo[1] == moveFrom[1]) &&
-                        (moveTo[0] == moveFrom[0] + 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece == ""))
-                    {
-                        return true;
-                    }
-                    if ((moveTo[1] == moveFrom[1]) &&
-                        (moveTo[0] == moveFrom[0] + 2) &&
-                        (moveFrom[0] == 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                        (piecesList[moveTo[0] - 1, moveTo[1]].piece == ""))
-                    {
-                        return true;
-                    }
-                    if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                        (moveTo[0] == moveFrom[0] + 1) &&
-                        (piecesList[moveTo[0], moveTo[1]].piece != "" && piecesList[moveTo[0], moveTo[1]].pieceColor != "black"))
-                    {
-                        return true;
-                    }
-                    //if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
-                    //    (moveTo[0] == moveFrom[0] + 1) &&
-                    //    (piecesList[moveTo[0], moveTo[1]].piece == "") &&
-                    //    (piecesList[moveTo[0] - 1, moveTo[1]].pieceColor == "white") &&
-                    //    (piecesList[moveTo[0] - 1, moveTo[1]].piece == "pawn") &&
-                    //   (piecesList[moveTo[0] - 1, moveTo[1]].pieceCoord[1] == 4))
-                    //{
-                    //    boardLayout[moveTo[0] - 1][moveTo[1]] = 0;
-                    //    return true;
-                    //}
+                    return true;
                 }
+                if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
+                    (moveTo[0] == moveFrom[0] + (turn ? -1 : 1)) &&
+                    (piecesList[moveTo[0], moveTo[1]].piece != "" && piecesList[moveTo[0], moveTo[1]].pieceColor != (turn ? "white" : "black"))) // taking a piece diagonally
+                {
+                    return true;
+                }
+                //if ((moveTo[1] == moveFrom[1] + 1 || moveTo[1] == moveFrom[1] - 1) &&
+                //    (moveTo[0] == moveFrom[0] + (turn ? -1 : 1) && 
+                //    (piecesList[moveTo[0], moveTo[1]].piece == "") &&
+                //    (piecesList[moveTo[0] + (turn ? 1 : -1), moveTo[1]].pieceColor == (turn ? "black" : "true")) &&
+                //    (piecesList[moveTo[0] + (turn ? 1 : -1), moveTo[1]].piece == "pawn") &&
+                //    (piecesList[moveTo[0] + (turn ? 1 : -1), moveTo[1]].pieceCoord[1] == (turn ? 3 : 4))) // en passant
+                //{
+                //    boardLayout[moveTo[0] + (turn ? 1 : -1)][moveTo[1]] = 0;
+                //    return true;
+                //}
             }
             return false;
         }
