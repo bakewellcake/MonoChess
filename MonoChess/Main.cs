@@ -36,12 +36,14 @@ namespace MonoChess
         bool menuClicked = false;
 
         string title = "MonoChess";
+        string selected = null;
+        string[] menuText;
 
-        String selected = null;
-        String[] menuText;
         Rectangle[] menuRect;
 
-        public enum GameState { mainMenu, gameOver, options, play };
+        public enum GameState { mainMenu, gameOver, options, play, ip };
+        public enum PlayState { computer, local, online };
+
         public GameState gameState = GameState.mainMenu;
 
         public Main()
@@ -134,19 +136,22 @@ namespace MonoChess
             {
                 Exit();
             }
+
             if (Keyboard.GetState().IsKeyDown(Keys.S) && oldKeyState.IsKeyUp(Keys.S)) // switch turns
             {
                 board.turn = !board.turn;
             }
+
             if (Keyboard.GetState().IsKeyDown(Keys.R) && oldKeyState.IsKeyUp(Keys.R)) // reset board
             {
                 board.ResetBoard();
             }
+
             if (Keyboard.GetState().IsKeyDown(Keys.T) && oldKeyState.IsKeyUp(Keys.T)) // test button
             {
-                board.singlePlayer = !board.singlePlayer;
-                board.testString = board.singlePlayer.ToString();
+                //
             }
+
             #region move history
             if (board.maxMoveDisplay == 10)
             {
@@ -183,11 +188,13 @@ namespace MonoChess
                 //}
             }
             #endregion
+
             if (board.gameOver)
             {
                 gameState = GameState.gameOver;
                 board.gameOver = false;
             }
+
             oldKeyState = Keyboard.GetState();
 
             base.Update(gameTime);
@@ -202,22 +209,28 @@ namespace MonoChess
             switch (gameState)
             {
                 case GameState.mainMenu:
-                    menuText = new String[] { "HUMAN VS COMPUTER", "HUMAN VS HUMAN", "EXIT" };
+                    menuText = new String[] { "HUMAN VS COMPUTER", "HUMAN VS HUMAN", "ONLINE", "EXIT" };
                     DrawMenu(menuText, graphics.PreferredBackBufferWidth / 2, (graphics.PreferredBackBufferHeight / 2) - 100);
 
                     switch (selected)
                     {
                         case "HUMAN VS COMPUTER":
-                            board.singlePlayer = true;
                             gameState = GameState.play;
+                            board.playState = PlayState.computer;
 
                             this.Window.Title = title + " - Human VS Computer";
                             break;
                         case "HUMAN VS HUMAN":
-                            board.singlePlayer = false;
                             gameState = GameState.play;
+                            board.playState = PlayState.local;
 
                             this.Window.Title = title + " - Human VS Human";
+                            break;
+                        case "ONLINE":
+                            //gameState = GameState.ip;
+                            //board.playState = PlayState.online;
+
+                            //this.Window.Title = title + " - Online";
                             break;
                         case "EXIT":
                             this.Exit();
@@ -291,7 +304,7 @@ namespace MonoChess
                             spriteBatch.DrawString(smallFont, board.displayMoves[i], new Vector2(810, 755 - ((board.maxMoveDisplay - i) * 45)), Color.White);
                         }
                         spriteBatch.DrawString(spriteFont, board.error, new Vector2(810, 750), Color.White); // any errors
-                        spriteBatch.DrawString(spriteFont, board.testString, new Vector2(810, 770), Color.White);
+                        //spriteBatch.DrawString(spriteFont, board.testString, new Vector2(810, 770), Color.White);
                     }
                     spriteBatch.End();
 
@@ -309,6 +322,9 @@ namespace MonoChess
                         }
                     }
                     spriteBatch.End();
+                    break;
+                case GameState.ip:
+
                     break;
                 default:
                     break;

@@ -17,7 +17,6 @@ namespace MonoChess
         public bool selected = false;
         public bool turn = true; // true = WHITE MOVE false = BLACK MOVE
         public bool gameOver = false;
-        public bool singlePlayer = false;
         public bool displayMenu = true;
 
         public int moveOffset = 0;
@@ -28,15 +27,17 @@ namespace MonoChess
         public int[] prevSelectedPos;
 
         public string pieceString = "";
-        public string error = "NULL";
-        public string testString;
-        public string winner = "NULL";
+        public string error = "";
+        //public string testString = "";
+        public string winner = "";
 
         public List<string> moves = new List<string>();
         public string[] displayMoves = new string[10];
 
         public Pieces[,] piecesList = new Pieces[8, 8];
         public Rectangle[,] boardRect = new Rectangle[8, 8];
+
+        public Main.PlayState playState;
 
         public int[][] boardLayout = new int[][] {
             new int [] { 1,  2,  3,  4,  5,  3,  2,  1 }, // 1 = bRook, 2 = bKnight, 3 = bBishop
@@ -51,7 +52,6 @@ namespace MonoChess
         public Board()
         {
             pieces = new Pieces();
-            testString = singlePlayer.ToString();
 
             for (int i = 0; i < 8; i++)
             {
@@ -351,7 +351,8 @@ namespace MonoChess
                                         selectedNumber = boardLayout[j][i]; // number of piece when square is selected (indicated by red box)
                                         selectedPos = new int[] { j, i };
                                     }
-                                    if (turn == false && boardLayout[j][i] <= 6 && singlePlayer == false)
+
+                                    if (turn == false && boardLayout[j][i] <= 6 && playState == Main.PlayState.local)
                                     {
                                         selected = true;
                                         selectedNumber = boardLayout[j][i]; // number of piece when square is selected (indicated by red box)
@@ -391,14 +392,26 @@ namespace MonoChess
             {
                 spriteBatch.Draw(squareSelected, new Vector2(selectedPos[1] * 100, selectedPos[0] * 100), new Rectangle(100, 0, 100, 100), Color.White);
             }
+
             if (mouseState.RightButton == ButtonState.Pressed)
             {
                 selected = false;
             }
-            if (singlePlayer && turn == false)
+
+            if (turn == false)
             {
-                MovePiece(new Computer(this).CalculateMove());
-                turn = true;
+                if (playState == Main.PlayState.computer)
+                {
+                    MovePiece(new Computer(this).CalculateMove());
+                    turn = true;
+                }
+
+                if (playState == Main.PlayState.online)
+                {
+                    // wait for turn from server
+                    Console.WriteLine("TEST");
+                    turn = true;
+                }
             }
         }
 

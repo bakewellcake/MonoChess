@@ -14,7 +14,7 @@ namespace MonoChess
         int checkSquareX;
         int checkSquareY;
         int randomIndex;
-        int piece;
+        //int piece;
 
         bool outOfBoard;
 
